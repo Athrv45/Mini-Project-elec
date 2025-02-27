@@ -29,13 +29,13 @@ void loop() {
     Serial.print("Humidity: "); Serial.print(humidity); Serial.println(" %");
 
     display.clearDisplay();
-    display.setTextSize(2);
+    display.setTextSize(1.7);
     display.setTextColor(WHITE);
     display.setCursor(0, 10);
-    display.print("Temp: "); display.print(temperature); display.print(" C");
+    display.print("Temperture: "); display.print(temperature); display.print(" C");
 
     display.setCursor(0, 30);
-    display.print("Hum: "); display.print(humidity); display.print(" %");
+    display.print("Humidity: "); display.print(humidity); display.print(" %");
 
     display.display();
     delay(2000);
