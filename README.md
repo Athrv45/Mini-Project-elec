@@ -42,7 +42,7 @@ The data is displayed on a **1.3-inch OLED screen**, providing a clean and user-
 
 ## 🏗️ Wiring Diagram
 
-![Wiring Diagram](images/wiring.png)
+![Wiring Diagram](images/wiring.jpg)
 
 | **Component** | **Arduino Pin** |
 | ------------- | --------------- |
