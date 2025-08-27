@@ -13,17 +13,26 @@ Adafruit_BMP280 bmp;
 #define MQ135_PIN A0
 MQ135 mq135(MQ135_PIN);
 
-// Use PAGE MODE (Saves RAM)
 U8G2_SSD1306_128X64_NONAME_1_HW_I2C u8g2(U8G2_R0, U8X8_PIN_NONE);
-
-const float SEA_LEVEL_PRESSURE_HPA = 1010.0; // Local pressure in Ahmednagar
 
 void setup() {
     Serial.begin(115200);
     Wire.begin();
 
     u8g2.begin();
-    displayMessage("Weather Station Started");
+    u8g2.firstPage();
+    do {
+        u8g2.setFont(u8g2_font_ncenB08_tr);
+        u8g2.drawStr(20, 30, "Initializing...");
+    } while (u8g2.nextPage());
+    delay(2000);
+
+     u8g2.begin();
+    u8g2.firstPage();
+    do {
+        u8g2.setFont(u8g2_font_ncenB08_tr);
+        u8g2.drawStr(20, 30, "Weather Station");
+    } while (u8g2.nextPage());
     delay(2000);
 
     dht.begin();
@@ -31,12 +40,18 @@ void setup() {
 
     if (!bmp.begin(0x76) && !bmp.begin(0x77)) {
         Serial.println("BMP280 Not Found!");
-        displayMessage("BMP280 Error!");
+        u8g2.firstPage();
+        do {
+            u8g2.drawStr(10, 30, "BMP280 Error!");
+        } while (u8g2.nextPage());
         while (1);
     }
     Serial.println("BMP280 Initialized!");
 
-    displayMessage("Sensors Ready!");
+    u8g2.firstPage();
+    do {
+        u8g2.drawStr(20, 30, "Sensors Ready!");
+    } while (u8g2.nextPage());
     delay(2000);
 }
 
@@ -44,40 +59,50 @@ void loop() {
     float h = dht.readHumidity();
     float t = dht.readTemperature();
     float p = bmp.readPressure() / 100.0F;
-    float a = bmp.readAltitude(SEA_LEVEL_PRESSURE_HPA);
+    float a = bmp.readAltitude(1013.25);
     float co2_ppm = mq135.getPPM();
-    int aqi = map(co2_ppm, 400, 5000, 50, 500); // Basic mapping for AQI
+    int aqi = map(co2_ppm, 400, 5000, 0, 500);
 
     if (isnan(h) || isnan(t) || isnan(p) || isnan(a)) {
         Serial.println("Sensor Read Error!");
-        displayMessage("Sensor Error!");
+        u8g2.clearBuffer();
+        u8g2.firstPage();
+        do {
+            u8g2.drawStr(20, 30, "Sensor Error!");
+        } while (u8g2.nextPage());
         delay(2000);
         return;
     }
 
-    // Show Temperature & Humidity
+    // Show Temperature & Humidity with icons
     u8g2.clearBuffer();
     u8g2.firstPage();
     do {
+        u8g2.setFont(u8g2_font_open_iconic_weather_4x_t);
+        u8g2.drawGlyph(10, 40, 0x0043); // Sun icon
+
         u8g2.setFont(u8g2_font_ncenB08_tr);
-        u8g2.setCursor(10, 15);
+        u8g2.setCursor(50, 20);
         u8g2.print("Temp: "); u8g2.print(t); u8g2.print(" C");
 
-        u8g2.setCursor(10, 30);
+        u8g2.setCursor(50, 40);
         u8g2.print("Hum: "); u8g2.print(h); u8g2.print(" %");
     } while (u8g2.nextPage());
     delay(4000);
 
-    // Show Pressure & Altitude
+    // Show Pressure & Altitude with a cloud icon
     u8g2.clearBuffer();
     u8g2.firstPage();
     do {
-        u8g2.setFont(u8g2_font_ncenB08_tr);
-        u8g2.setCursor(10, 15);
-        u8g2.print("Pressure: "); u8g2.print(p); u8g2.print(" hPa");
+        u8g2.setFont(u8g2_font_open_iconic_weather_4x_t);
+        u8g2.drawGlyph(10, 40, 0x0041); // Cloud icon
 
-        u8g2.setCursor(10, 30);
-        u8g2.print("Altitude: "); u8g2.print(a); u8g2.print(" m");
+        u8g2.setFont(u8g2_font_ncenB08_tr);
+        u8g2.setCursor(50, 20);
+        u8g2.print("Press: "); u8g2.print(p); u8g2.print(" hPa");
+
+        u8g2.setCursor(50, 40);
+        u8g2.print("Alt: "); u8g2.print(a); u8g2.print(" m");
     } while (u8g2.nextPage());
     delay(4000);
 
@@ -85,26 +110,15 @@ void loop() {
     u8g2.clearBuffer();
     u8g2.firstPage();
     do {
+        u8g2.setFont(u8g2_font_open_iconic_thing_4x_t);
+        u8g2.drawGlyph(10, 40, 0x0044); // Factory pollution icon
+
         u8g2.setFont(u8g2_font_ncenB08_tr);
-        u8g2.setCursor(10, 15);
+        u8g2.setCursor(50, 20);
         u8g2.print("CO2: "); u8g2.print(co2_ppm); u8g2.print(" PPM");
 
-        u8g2.setCursor(10, 30);
+        u8g2.setCursor(50, 40);
         u8g2.print("AQI: "); u8g2.print(aqi);
     } while (u8g2.nextPage());
     delay(4000);
-
-    // Display concluding message
-    displayMessage("Stay Safe and Healthy");
-    delay(2000);
-}
-
-// Function to display a message on OLED
-void displayMessage(const char* message) {
-    u8g2.clearBuffer();
-    u8g2.firstPage();
-    do {
-        u8g2.setFont(u8g2_font_ncenB08_tr);
-        u8g2.drawStr(10, 30, message);
-    } while (u8g2.nextPage());
 }
