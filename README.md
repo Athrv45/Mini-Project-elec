@@ -36,13 +36,13 @@ The data is displayed on a **1.3-inch OLED screen**, providing a clean and user-
 
 ## 📷 Project Preview
 
-![Project Preview](project_preview.jpg)
+![Project Preview](images/image3.jpg)
 
 ---
 
 ## 🏗️ Wiring Diagram
 
-![Wiring Diagram](wiring_diagram.png)
+![Wiring Diagram](images/wiring.png)
 
 | **Component** | **Arduino Pin** |
 | ------------- | --------------- |
